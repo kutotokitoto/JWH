@@ -1,101 +1,174 @@
-import Image from "next/image";
+'use client';
+
+import { useState } from 'react';
+import styles from '@/styles/Home.module.css';
+
+// 초성, 중성, 종성 배열
+const CHOSUNG = ['ㄱ', 'ㄲ', 'ㄴ', 'ㄷ', 'ㄸ', 'ㄹ', 'ㅁ', 'ㅂ', 'ㅃ', 'ㅅ', 'ㅆ', 'ㅇ', 'ㅈ', 'ㅉ', 'ㅊ', 'ㅋ', 'ㅌ', 'ㅍ', 'ㅎ'];
+const JUNGSUNG = ['ㅏ', 'ㅐ', 'ㅑ', 'ㅒ', 'ㅓ', 'ㅔ', 'ㅕ', 'ㅖ', 'ㅗ', 'ㅘ', 'ㅙ', 'ㅚ', 'ㅛ', 'ㅜ', 'ㅝ', 'ㅞ', 'ㅟ', 'ㅠ', 'ㅡ', 'ㅢ', 'ㅣ'];
+const JONGSUNG = ['', 'ㄱ', 'ㄲ', 'ㄳ', 'ㄴ', 'ㄵ', 'ㄶ', 'ㄷ', 'ㄹ', 'ㄺ', 'ㄻ', 'ㄼ', 'ㄽ', 'ㄾ', 'ㄿ', 'ㅀ', 'ㅁ', 'ㅂ', 'ㅄ', 'ㅅ', 'ㅆ', 'ㅇ', 'ㅈ', 'ㅊ', 'ㅋ', 'ㅌ', 'ㅍ', 'ㅎ'];
 
 export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+  const [selectedChosung, setSelectedChosung] = useState<string[]>([]);
+  const [selectedJungsung, setSelectedJungsung] = useState<string[]>([]);
+  const [selectedJongsung, setSelectedJongsung] = useState<string[]>([]);
+  const [noJongsung, setNoJongsung] = useState(false);
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+  // 한글 조합 함수
+  const combineHangul = () => {
+    if (selectedChosung.length === 0 || selectedJungsung.length === 0) return [];
+
+    const result: string[] = [];
+    
+    for (const cho of selectedChosung) {
+      for (const jung of selectedJungsung) {
+        if (noJongsung) {
+          const unicode = 0xAC00 + 
+            (CHOSUNG.indexOf(cho) * 21 * 28) + 
+            (JUNGSUNG.indexOf(jung) * 28);
+          result.push(String.fromCharCode(unicode));
+        }
+        if (selectedJongsung.length > 0) {
+          for (const jong of selectedJongsung) {
+            const unicode = 0xAC00 + 
+              (CHOSUNG.indexOf(cho) * 21 * 28) + 
+              (JUNGSUNG.indexOf(jung) * 28) + 
+              (JONGSUNG.indexOf(jong));
+            result.push(String.fromCharCode(unicode));
+          }
+        }
+      }
+    }
+    return result;
+  };
+
+  return (
+    <div className={styles.container}>
+      <h1 className={styles.title}>한글 낱글자 만들기</h1>
+      <div className={styles.section}>
+        <h2>초성</h2>
+        <div className={styles.controlButtons}>
+          <button
+            className={styles.controlButton}
+            onClick={() => setSelectedChosung([...CHOSUNG])}
           >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+            모두
+          </button>
+          <button
+            className={styles.controlButton}
+            onClick={() => setSelectedChosung([])}
           >
-            Read our docs
-          </a>
+            해제
+          </button>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+        <div className={styles.buttons}>
+          {CHOSUNG.map((char) => (
+            <button
+              key={char}
+              className={selectedChosung.includes(char) ? styles.active : ''}
+              onClick={() => {
+                setSelectedChosung(prev => 
+                  prev.includes(char) 
+                    ? prev.filter(c => c !== char)
+                    : [...prev, char]
+                );
+              }}
+            >
+              {char}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div className={styles.section}>
+        <h2>중성</h2>
+        <div className={styles.controlButtons}>
+          <button
+            className={styles.controlButton}
+            onClick={() => setSelectedJungsung([...JUNGSUNG])}
+          >
+            모두
+          </button>
+          <button
+            className={styles.controlButton}
+            onClick={() => setSelectedJungsung([])}
+          >
+            해제
+          </button>
+        </div>
+        <div className={styles.buttons}>
+          {JUNGSUNG.map((char) => (
+            <button
+              key={char}
+              className={selectedJungsung.includes(char) ? styles.active : ''}
+              onClick={() => {
+                setSelectedJungsung(prev => 
+                  prev.includes(char) 
+                    ? prev.filter(c => c !== char)
+                    : [...prev, char]
+                );
+              }}
+            >
+              {char}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div className={styles.section}>
+        <h2>종성</h2>
+        <div className={styles.controlButtons}>
+          <button
+            className={styles.controlButton}
+            onClick={() => {
+              setSelectedJongsung(JONGSUNG.filter(char => char !== ''));
+              setNoJongsung(false);
+            }}
+          >
+            모두
+          </button>
+          <button
+            className={styles.controlButton}
+            onClick={() => {
+              setSelectedJongsung([]);
+              setNoJongsung(false);
+            }}
+          >
+            해제
+          </button>
+        </div>
+        <div className={styles.buttons}>
+          <button
+            className={noJongsung ? styles.active : ''}
+            onClick={() => {
+              setNoJongsung(prev => !prev);
+              setSelectedJongsung([]);
+            }}
+          >
+            X
+          </button>
+          {JONGSUNG.filter(char => char !== '').map((char) => (
+            <button
+              key={char}
+              className={selectedJongsung.includes(char) ? styles.active : ''}
+              onClick={() => {
+                setNoJongsung(false);
+                setSelectedJongsung(prev => 
+                  prev.includes(char) 
+                    ? prev.filter(c => c !== char)
+                    : [...prev, char]
+                );
+              }}
+            >
+              {char}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div className={styles.result}>
+        {combineHangul().join(', ')}
+      </div>
     </div>
   );
-}
+} 
